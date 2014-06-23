@@ -1,0 +1,19 @@
+<html>
+
+<head>
+<title>Qooxdoo 4.1 2 Tern</title>
+<script type="text/javascript" src="../api/4.1/qxWeb.json.js"></script>
+<script type="text/javascript" src="QooxdooApi2TernDef.js"></script>
+<script type="text/javascript">
+  function qooxdoo2Tern() {
+	var generator = new QooxdooApi2TernDef.Generator(), ternDef = generator.ternDef;
+	generator.addApi(QooxdooApi);
+    document.getElementById('ternDef').value = JSON.stringify(ternDef, null,
+        ' ');
+  }
+</script>
+</head>
+<body onload="qooxdoo2Tern();">
+	<textarea id="ternDef" style="width: 100%; height: 100%" spellcheck="false"></textarea>
+</body>
+</html>
