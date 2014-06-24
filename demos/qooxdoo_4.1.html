@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>ExtJS 5.0.0 Tern Demo</title>
+    <title>Qooxdoo 4.1 Tern Demo</title>
     
     <!-- CodeMirror -->
     <link rel="stylesheet" href="codemirror/lib/codemirror.css">
@@ -27,7 +27,7 @@
   <script src="ternjs/tern/lib/comment.js"></script>
   <script src="ternjs/tern/lib/infer.js"></script>
   
-  <script src="../plugin/extjs_5.0.0.js"></script>
+  <script src="../plugin/qooxdoo_4.1.js"></script>
   
   <!-- Official CodeMirror Tern addon -->
   <script src="codemirror/addon/tern/tern.js"></script>   
@@ -59,9 +59,9 @@
   </head>
   <body>
     
-    <h1>Demo with ExtJS 5.0.0 Tern plugin </h1>
-	<p>See <a href="https://github.com/angelozerr/tern.jsduck">https://github.com/angelozerr/tern.jsduck</a> for more infos.</p>  
-    <form><textarea id="code" name="code">Ext.
+    <h1>Demo with Qooxdoo 4.1 Tern plugin </h1>
+	<p>See <a href="https://github.com/angelozerr/tern-qooxdoo">https://github.com/angelozerr/tern-qooxdoo</a> for more infos.</p>  
+    <form><textarea id="code" name="code">qxWeb.
 </textarea></form>
     <script type="text/javascript">
        
@@ -96,7 +96,7 @@
         },
         gutters: ["CodeMirror-linenumbers"],
     	textHover: {delay:300},
-    	ternWith: { plugins: {"extjs_5.0.0" : {}}, defs:["browser"]}
+    	ternWith: { plugins: {"qooxdoo_4.1" : {}}, defs:["browser"]}
       });
     </script>
     

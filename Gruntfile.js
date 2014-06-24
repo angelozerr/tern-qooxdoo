@@ -1,6 +1,6 @@
 module.exports = function(grunt) {
 
-  require("./tasks/generate-tern.qooxdoo_4.1");
+  require("./tasks/generate-tern-qooxdoo_4.1");
   
   var templateUtil = require("./tasks/template-util");
 

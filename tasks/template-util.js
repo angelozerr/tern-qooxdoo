@@ -1,31 +1,29 @@
 "use strict";
 
 /**
- * Grunt template utilities for generate ExtJS Tern plugin by using jsduck API
+ * Grunt template utilities for generate Qooxdoo Tern plugin by using API data
  * json.
  */
 
-var fs = require("fs"), path = require("path"), JSDuckApi2TernDef = require("../generator/JSDuckApi2TernDef");
+var fs = require("fs"), path = require("path"), QooxdooApi2TernDef = require("../generator/QooxdooApi2TernDef");
 
 /**
  * Create ExtJS data waited by the grunt template.
  * 
- * @param type
- *        of the Api (ex : extjs)
  * @param version
  *        version of the Api.
  * @param formatJSON
  *        true if tern defs must be formated.
  */
-exports.createData = function(type, version, formatJSON) {
+exports.createData = function(version, formatJSON) {
   var options = {
     version : version
   };
-  var generator = new JSDuckApi2TernDef.Generator(type), ternDef = generator.ternDef;
-  // loop for Ext*.json
-  var basedir = getApiBaseDir(type, version);
+  var generator = new QooxdooApi2TernDef.Generator(), ternDef = generator.ternDef;
+  // loop for Qooxdoo*.json
+  var basedir = getApiBaseDir(version);
   var filenames = fs.readdirSync(basedir);
-  updateTernDef(generator, type, version, filenames);
+  updateTernDef(generator, version, filenames);
   var defs = formatJSON ? JSON.stringify(ternDef, null, ' ') : JSON.stringify(ternDef);
   return {
     'version' : version,
@@ -36,7 +34,7 @@ exports.createData = function(type, version, formatJSON) {
 var template = {};
 
 /**
- * Add JSDuck target template.
+ * Add Qooxdoo target template.
  * 
  * @param the
  *        grunt target template.
@@ -48,10 +46,10 @@ exports.addTargetTemplate = function(target) {
 }
 
 /**
- * Returns the JSDuck grunt template which contains the list of JSDuck target
+ * Returns the Qooxdoo grunt template which contains the list of Qooxdoo target
  * template.
  * 
- * @return the JSDuck grunt template which contains the list of JSDuck target
+ * @return the Qooxdoo grunt template which contains the list of Qooxdoo target
  *         template.
  */
 exports.getTemplate = function() {
@@ -62,35 +60,36 @@ exports.generateTernDef = generateTernDef;
 
 //----------- private function
 
-function generateTernDef(type, version, filenames) {
-  var generator = new JSDuckApi2TernDef.Generator(type);
-  updateTernDef(generator, type, version, filenames);
+function generateTernDef(version, filenames) {
+  var generator = new QooxdooApi2TernDef.Generator();
+  updateTernDef(generator, version, filenames);
   return generator.ternDef;
 }
 
-function updateTernDef(generator, type, version, filenames) {
+function updateTernDef(generator, version, filenames) {
   if (filenames instanceof Array) {
     filenames.forEach(function(filename) {
-      updateTernDef(generator, type, version, filename);
+      updateTernDef(generator, version, filename);
     });
   } else {
     if (endsWith(filenames, '.json')) {
-      var jsduckApi = loadJSDuckApi(type, version, filenames);
-      generator.addApi(jsduckApi);
+      var qooxdooApi = loadQooxdooApi(version, filenames);
+      generator.addApi(qooxdooApi);
     }
   }
 }
 
-function loadJSDuckApi(type, version, filename) {
-  var basedir = getApiBaseDir(type, version);
+function loadQooxdooApi(version, filename) {
+  var basedir = getApiBaseDir(version);
+  console.log(path.join(basedir, filename))
   return JSON.parse(fs.readFileSync(path.join(basedir, filename), "utf8"));
 }
 
-function getApiBaseDir(type, version) {
-  var basedir = path.resolve("./api/", type + '/' + version);
+function getApiBaseDir(version) {
+  var basedir = path.resolve("./api/", version);
   if (!fs.existsSync(basedir)) {
     // case when test is run
-    basedir = path.resolve("../api/", type + '/' + version);
+    basedir = path.resolve("../api/", version);
   }
   return basedir;
 }

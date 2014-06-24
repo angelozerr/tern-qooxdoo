@@ -28,17 +28,129 @@
 			    "!define" : {}
 			};
 		    }
+		    
+		    var visitors = {
+			    "desc" : {
+				visit : visitDesc
+			    },
+			    "methods-static" : {
+				visit : visitMethods
+			    },
+			    "constants" : {
+				visit : visitConstants
+			    },
+			    "constructor" : {
+				visit : visitConstructor,
+				prototype : true
+			    },
+			    "methods" : {
+				visit : visitMethods,
+				prototype : true
+			    },
+			    "params" : {
+				visit : visitParams
+			    },
+			    "param" : {
+				visit : visitParam
+			    },
+			    "types" : {
+				visit : visitTypes
+			    }
+			    
+		    }
 
 		    Generator.prototype.addApi = function(qooxdooApi) {
-			var name = qooxdooApi.name;
+			if (qooxdooApi.attributes) {
+			var name = qooxdooApi.attributes.fullName, superClass = qooxdooApi.attributes.superClass;
 			if (name) {
 			    var ternClass = getTernClass(name, this.ternDef);
-			    addDocIfNeeded(qooxdooApi, ternClass, this.options);
+			    if (superClass) ternClass["!proto"] = superClass;
+			    visitChildren(qooxdooApi, ternClass, this.options);
+			}			
 			}
-			// visit members.
-			visitMembers(qooxdooApi, this.ternDef, this.options);
 		    };
+		    
+		    function visitChildren(qooxdoItem, ternClass, options) {
+			var children = qooxdoItem.children;
+			    if (children) {
+				for (var i = 0; i < children.length; i++) {
+				    var child = children[i];
+				    var visitor = visitors[child.type];
+				    if (visitor) {
+					var ternItem = visitor.prototype ? getTernPrototype(ternClass) : ternClass;
+					visitor.visit(child, ternItem, options);
+				    }
+				}
+			    }
+		    }
+		    
+		    function getTernPrototype(ternClass) {
+			if (!ternClass.prototype)
+			    ternClass.prototype = {};
+			return ternClass.prototype;
+		    }
+		    
+		    function visitDesc(qooxdooItem, ternItem, options) {
+			if (options.doc && qooxdooItem.attributes && qooxdooItem.attributes.text) {
+			    ternItem["!doc"] = qooxdooItem.attributes.text;
+			}
+		    }
+		    
+		    function visitMethods(qooxdoItem, ternItem, options) {
+			var qooxdooMethods = qooxdoItem.children;
+			for (var i = 0; i < qooxdooMethods.length; i++) {
+			    var qooxdooMethod = qooxdooMethods[i], name = qooxdooMethod.attributes.name;
+			    var ternMethod = ternItem[name] = {};
+			    ternMethod["!type"] = "fn(";
+			    visitChildren(qooxdooMethod, ternMethod, options);
+			    ternMethod["!type"] += ")";
+			}
+		    }		
+		    
+		    function visitConstants(qooxdooItem, ternItem, options) {
+			
+		    }
+		    
+		    function visitParams(qooxdooItem, ternItem, options) {
+			visitChildren(qooxdooItem, ternItem, options);			
+		    }		    
 
+		    function visitParam(qooxdooItem, ternItem, options) {
+			var attributes = qooxdooItem.attributes;
+			if (attributes && attributes.name) {
+			    if (ternItem["!type"] != "fn(") {
+				ternItem["!type"] += ", ";
+			    }
+			    ternItem["!type"] += attributes.name;
+			    visitChildren(qooxdooItem, ternItem, options);
+			}
+		    }
+		    
+		    function visitTypes(qooxdooItem, ternItem, options) {
+			if (qooxdooItem.children && qooxdooItem.children.length > 0) {
+			    var type = getTernType(qooxdooItem.children[0].attributes.type);
+			    //ternItem["!type"] += (": " + type);
+			}		
+		    }
+		    
+		    function getTernType(qooxdooType) {
+			switch (qooxdooType) {
+			case 'String':
+			    return 'string';
+			case 'Boolean':
+			    return 'bool';
+			case 'Number':
+			    return 'number';
+			case 'Function':
+			    return 'fn()';			    
+			}
+			return "+" + qooxdooType;
+		    }
+		    
+		    function visitConstructor(qooxdooItem, ternItem, options) {
+			
+		    }		    		    
+		    
 		    // -------------- Visit Members
 
 		    /**
@@ -111,7 +223,7 @@
 			    return member.autodetected[name];
 		    }
 
-		    function getTernType(member, isConstructor) {
+		    function getOLDTernType(member, isConstructor) {
 			var memberType = member.type, memberParams = member.params, memberReturn = member.return;
 			if (!memberType) {
 			    if (memberParams || memberReturn) {
@@ -160,18 +272,6 @@
 			// console.log(memberType)
 		    }
 
-		    function getTernClassOrPrototype(member, qooxdooApi, ternDef) {
-			var ternClass = getTernClass(member.owner, ternDef);
-			if (qooxdooApi.singleton) {
-			    return ternClass;
-			}
-			/*
-			 * if (isMemberStatic(member)) return ternClass;
-			 */
-			if (!ternClass.prototype)
-			    ternClass.prototype = {};
-			return ternClass.prototype;
-		    }
 
 		    function getTernClass(owner, ternDef) {
 			var ternClass = ternDef;
@@ -187,8 +287,8 @@
 		    }
 
 		    function addDocIfNeeded(qooxdooItem, ternItem, options) {
-			if (options.doc && qooxdooItem.doc && qooxdooItem.doc != '\n') {
-			    ternItem["!doc"] = qooxdooItem.doc;
+			if (options.doc && qooxdooItem.attributes && qooxdooItem.attributes.text) {
+			    ternItem["!doc"] = qooxdooItem.attributes.text;
 			}
 		    }
 
