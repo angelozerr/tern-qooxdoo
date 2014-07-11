@@ -5,6 +5,10 @@ tern-qooxdoo
 
 Generates [Tern plugin](http://ternjs.net/doc/manual.html#plugins) for [qooxdoo](http://qooxdoo.org/) from their Javascript sources by using Api *.json.
 
+## Usage 
+
+tern.js works  with a lot of editor like Web Browser (CodeMirror, Ace, orion), Emacs, Vim, Sublime Text, etc and Eclipse (see https://github.com/angelozerr/tern.java/wiki/Tern-&-Qooxdoo-support)
+
 ## Demo
 
 You can see demo :
